@@ -11,8 +11,8 @@ import pickle
 ### Setting arguments
 args = SimpleNamespace(batch_size=8,
                        input_dim=448,
-                       # pretrained_weights="path_to_Hybrid_ViT_pascal.pth", ## weights can be found in supplementary material folder
-                       pretrained_weights="path_to_Affinity_Hybrid_ViT_pascal.pth",  ##  weights can be found in supplementary material folder
+                       # pretrained_weights="path_to_Hybrid_ViT_pascal.pth",  ## from stored_weights we provided you with
+                       pretrained_weights="path_to_Affinity_Hybrid_ViT_pascal.pth",  ## from stored_weights we provided you with
                        epochs=7,
                        lr=0.1,
                        weight_decay=1e-4,
