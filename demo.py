@@ -14,7 +14,7 @@ import pickle
 ### Setting arguments
 args = SimpleNamespace(batch_size=1,
                        input_dim=224, 
-                       pretrained_weights="path_to_ViTbase_imagenet",  ## weights can be found in supplementary material folder
+                       pretrained_weights="path_to_ViTbase_imagenet",  ## from stored_weights we provide you
                        ## pretrained on ImageNet taken from https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-vitjx/jx_vit_base_p16_224-80ecf9dd.pth'
                        val_set="path_to_ILSVRC2012_img_val, ## https://image-net.org/download-images.php download validation 2012 image all tasks
                        val_set_semg="path_to_gtsegs_ijcv.mat" ## downloaded from http://calvin-vision.net/bigstuff/proj-imagenet/data/gtsegs_ijcv.mat
