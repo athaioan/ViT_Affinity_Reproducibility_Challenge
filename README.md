@@ -1,6 +1,8 @@
 # Reproduction of Transformer Interpretability Beyond Attention Visualization [CVPR 2021]
 
 ## Requirements
+You can download the pretrained weights we used and those we trained at https://drive.google.com/drive/folders/1lCjPjO3_BUnk-utY9-taCTQKoq2Pm43s
+
 
 ### Create and activate a virtual environment
 
