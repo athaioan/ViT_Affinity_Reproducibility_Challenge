@@ -66,25 +66,25 @@ optimizer = torch.optim.SGD(model.parameters(),
                             momentum=0.9,
                             weight_decay=args.weight_decay)
 
-## Training ViT_Hybrid on Pascal Voc
-# for index in range(model.max_epochs):
-#
-#     for g in optimizer.param_groups:
-#         g['lr'] = args.lr * (1-index/model.max_epochs)
-#
-#     print("Training epoch...")
-#     model.train_epoch(train_loader, optimizer)
-#
-#     print("Validating epoch...")
-#     model.val_epoch(val_loader)
-#
-#     model.visualize_graph()
-#
-#     if model.val_history["loss"][-1] < model.min_val:
-#         print("Saving model...")
-#         model.min_val = model.val_history["loss"][-1]
-#
-#         torch.save(model.state_dict(), model.session_name+"/stage_1.pth")
+# Training ViT_Hybrid on Pascal Voc
+for index in range(model.max_epochs):
+
+    for g in optimizer.param_groups:
+        g['lr'] = args.lr * (1-index/model.max_epochs)
+
+    print("Training epoch...")
+    model.train_epoch(train_loader, optimizer)
+
+    print("Validating epoch...")
+    model.val_epoch(val_loader)
+
+    model.visualize_graph()
+
+    if model.val_history["loss"][-1] < model.min_val:
+        print("Saving model...")
+        model.min_val = model.val_history["loss"][-1]
+
+        torch.save(model.state_dict(), model.session_name+"/stage_1.pth")
 
 
 model.extract_LRP_for_affinity(train_loader, alpha_low=4, alpha_high=32,
