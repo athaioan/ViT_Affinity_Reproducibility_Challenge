@@ -57,16 +57,16 @@ model.load_pretrained(args.pretrained_weights)
 model.eval()
 model.zero_grad()
 
-## Table 2.
-# pixAcc, mIoU, mAp = model.extract_metrics(val_loader_segm)
-# print(pixAcc, mIoU, mAp)
+# Table 2.
+pixAcc, mIoU, mAp = model.extract_metrics(val_loader_segm)
+print(pixAcc, mIoU, mAp)
 
 
-## Table 3.
-# positive = True for positive perturbation
-# positive = False for negative perturbation
-# vis_class_top = True for positive predicted
-# vis_class_top = False for negative target
+# Table 3.
+positive = True for positive perturbation
+positive = False for negative perturbation
+vis_class_top = True for positive predicted
+vis_class_top = False for negative target
 
 AUC = model.extract_AUC(val_loader, normalize, positive=True, vis_class_top=True)
 print(AUC)
