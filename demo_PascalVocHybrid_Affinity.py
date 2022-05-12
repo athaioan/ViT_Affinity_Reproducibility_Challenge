@@ -85,25 +85,25 @@ optimizer = torch.optim.SGD(model.parameters(),
 
 ## Training AffinityNet on ViT_Hybrid explainability cues
 
-# for index in range(model.max_epochs):
-#
-#     for g in optimizer.param_groups:
-#         g['lr'] = args.lr * (1-index/model.max_epochs)
-#
-#     print("Training epoch...")
-#     model.train_epoch(train_loader, optimizer)
-#
-#     print("Validating epoch...")
-#     model.val_epoch(val_loader)
-#
-#     model.visualize_graph()
-#
-#     if model.val_history["loss"][-1] < model.min_val:
-#         print("Saving model...")
-#         model.min_val = model.val_history["loss"][-1]
-#
-#         torch.save(model.state_dict(), model.session_name+"/stage_1.pth")
-#
+for index in range(model.max_epochs):
+
+    for g in optimizer.param_groups:
+        g['lr'] = args.lr * (1-index/model.max_epochs)
+
+    print("Training epoch...")
+    model.train_epoch(train_loader, optimizer)
+
+    print("Validating epoch...")
+    model.val_epoch(val_loader)
+
+    model.visualize_graph()
+
+    if model.val_history["loss"][-1] < model.min_val:
+        print("Saving model...")
+        model.min_val = model.val_history["loss"][-1]
+
+        torch.save(model.state_dict(), model.session_name+"/stage_1.pth")
+
 
 
 model.affinity_refine_cams(val_loader,  args.input_dim, args.input_cams, pred_folder="aff_preds/",
