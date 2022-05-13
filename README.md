@@ -1,6 +1,6 @@
 # [RE] Weakly-Supervised Semantic Segmentation via Transformer Explainability (Reproduction of Transformer Interpretability Beyond Attention Visualization [CVPR 2021])
 
-## openreview
+## Openreview
 You can find the report at https://openreview.net/forum?id=rcEDhGX3AY&referrer=%5Bthe%20profile%20of%20Ioannis%20Athanasiadis%5D(%2Fprofile%3Fid%3D~Ioannis_Athanasiadis1)
 
 ## Requirements
