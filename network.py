@@ -775,7 +775,7 @@ class Block(nn.Module):
 
 class ViT_hybrid_model(ViT_model):
 
-    def __init__(self, n_classes=1000, img_size=(224, 224), patch_size=16, in_ch=3, embed_size=768,
+    def __init__(self, session_name, n_classes=1000, img_size=(224, 224), patch_size=16, in_ch=3, embed_size=768,
                  n_heads=12, QKV_bias=True, att_dropout=0., out_dropout=0., n_blocks=12, mlp_hidden_ratio=4.,
                  device="cuda", max_epochs=10):
 
@@ -783,6 +783,11 @@ class ViT_hybrid_model(ViT_model):
                  n_heads=n_heads, QKV_bias=QKV_bias, att_dropout=att_dropout, out_dropout=out_dropout, n_blocks=n_blocks, mlp_hidden_ratio=mlp_hidden_ratio,
                  device=device, max_epochs=max_epochs)
 
+        self.session_name = session_name
+        
+        if not os.path.exists(model.session_name):
+            os.makedirs(model.session_name)
+        
         # self.resnet_backbone = ResNetV2(block_units=(3, 4, 9),
         #                                  width_factor=1)
         self.resnet_backbone = ResNetV2(
@@ -832,7 +837,7 @@ class ViT_hybrid_model(ViT_model):
 
 class ViT_hybrid_model_Affinity(nn.Module):
 
-    def __init__(self, max_epochs=10, device="cuda"):
+    def __init__(self, session_name, max_epochs=10, device="cuda", n_classes=20):
 
         super(ViT_hybrid_model_Affinity, self).__init__()
         self.train_history ={}
@@ -848,9 +853,16 @@ class ViT_hybrid_model_Affinity(nn.Module):
         self.val_history["bg_loss"] = []
         self.val_history["neg_loss"] = []
 
+        
         self.min_val = np.inf
 
-        self.n_classes = 20
+        self.n_classes = n_classes
+        
+        self.session_name = session_name
+        if not os.path.exists(model.session_name):
+            os.makedirs(model.session_name)
+        
+        
         self.device = device
         self.max_epochs = max_epochs
         self.current_epoch = 0
