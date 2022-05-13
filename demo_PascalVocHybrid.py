@@ -10,7 +10,7 @@ import pickle
 import os
 
 ### Setting arguments
-args = SimpleNamespace(train_mode = True
+args = SimpleNamespace(train_mode = True,
                        batch_size=1,
                        input_dim=448,
                        pretrained_weights="path_to_Hybrid_ViT_imagenet.pth", ## initialization -  from stored_weights we provided you with
