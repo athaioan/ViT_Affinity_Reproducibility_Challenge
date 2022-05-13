@@ -9,7 +9,8 @@ from network import ViT_hybrid_model_Affinity
 import pickle
 
 ### Setting arguments
-args = SimpleNamespace(batch_size=8,
+args = SimpleNamespace(train_mode=True,
+                       batch_size=8,
                        input_dim=448,
                        pretrained_weights="path_to_Hybrid_ViT_pascal.pth",  ## from stored_weights we provided you with
                        #pretrained_weights="path_to_Affinity_Hybrid_ViT_pascal.pth",  ## from stored_weights we provided you with
@@ -17,17 +18,24 @@ args = SimpleNamespace(batch_size=8,
                        lr=0.1,
                        weight_decay=1e-4,
                        VocClassList="path_to_PascalVocClasses.txt", ## can be found in other folder
-                       voc12_img_folder="path_to_JPEGImages/", ## download from http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
-                       gt_mask_fold = "path_to_SegmentationClass/", ## download from http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
+                       voc12_img_folder="path_to_JPEGImages", ## download from http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
+                       gt_mask_fold = "path_to_VOC_SegmentationClass", ## download from http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
 
                        train_set="path_to_train_augm.txt", ## can be found in other folder
-                       val_set=r"path_to_val.txt",  ## can be found in other folder
-                       low_cams_fold_val = "store_to_crf_lows/", ## set store folders
-                       high_cams_fold_val = "store_to_crf_highs/", 
-                       low_cams_fold_train="store_to_crf_lows/",
-                       high_cams_fold_train="store_to_crf_highs/",
-                       input_cams="store_to_cams/",
+                       val_set="path_to_val.txt",  ## can be found in other folder
+                       low_crf_fold = "store_to_crf_lows", ## set store folders
+                       high_crf_fold = "store_to_crf_highs", 
                        device=torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"),
+                       
+                       input_cams="path_to_val_cams",
+                       pred_folder="store_to_aff_preds" # set store paths
+
+                       ## random walk
+                       alpha=4, 
+                       beta=16, 
+                       t_rw=8
+                       
+                       session_name = "set_session_name"
                        )
 
 
@@ -67,53 +75,48 @@ val_loader = PascalVOC2012Affinity(args.val_set,  args.voc12_img_folder, args.lo
 val_loader = DataLoader(val_loader, batch_size=1, shuffle=False)
 
 
-model = ViT_hybrid_model_Affinity(max_epochs=args.epochs, device=args.device)
+model = ViT_hybrid_model_Affinity(session_name=args.session_name, max_epochs=args.epochs, device=args.device, n_classes=20)
+model.eval()
 
 
 model.load_pretrained(args.pretrained_weights)
-model.session_name = "PascalVOC_classification_Hybrid_Affinity_1"
 
-if not os.path.exists(model.session_name):
-    os.makedirs(model.session_name)
+if args.train_mode:
 
-#
-# Prepare optimizer and scheduler
-optimizer = torch.optim.SGD(model.parameters(),
-                            lr=args.lr,
-                            momentum=0.9,
-                            weight_decay=args.weight_decay)
+  #
+  # Prepare optimizer and scheduler
+  optimizer = torch.optim.SGD(model.parameters(),
+                              lr=args.lr,
+                              momentum=0.9,
+                              weight_decay=args.weight_decay)
 
-## Training AffinityNet on ViT_Hybrid explainability cues
+  ## Training AffinityNet on ViT_Hybrid explainability cues
 
-for index in range(model.max_epochs):
+  for index in range(model.max_epochs):
 
-    for g in optimizer.param_groups:
-        g['lr'] = args.lr * (1-index/model.max_epochs)
+      for g in optimizer.param_groups:
+          g['lr'] = args.lr * (1-index/model.max_epochs)
 
-    print("Training epoch...")
-    model.train_epoch(train_loader, optimizer)
+      print("Training epoch...")
+      model.train_epoch(train_loader, optimizer)
 
-    print("Validating epoch...")
-    model.val_epoch(val_loader)
+      print("Validating epoch...")
+      model.val_epoch(val_loader)
 
-    model.visualize_graph()
+      model.visualize_graph()
 
-    if model.val_history["loss"][-1] < model.min_val:
-        print("Saving model...")
-        model.min_val = model.val_history["loss"][-1]
+      if model.val_history["loss"][-1] < model.min_val:
+          print("Saving model...")
+          model.min_val = model.val_history["loss"][-1]
 
-        torch.save(model.state_dict(), model.session_name+"/stage_1.pth")
+          torch.save(model.state_dict(), model.session_name+"/stage_1.pth")
 
 
 
-model.affinity_refine_cams(val_loader,  args.input_dim, args.input_cams, pred_folder="aff_preds/",
-                     alpha=4, beta=16, t_rw=8) # 4, 8 aff_preds1
+model.affinity_refine_cams(val_loader,  args.input_dim, args.input_cams, pred_folder=args.pred_folder,
+                     alpha=arsg.alpha, beta=arsg.beta, t_rw=arsg.t_rw) 
 
-
-cam_pred_fold = "C:/Users/johny/Desktop/Transformer-Explainability-main/ours/aff_preds/" ## path to aff_preds
-
-
-metrics = model.extract_mIoU(cam_pred_fold, gt_mask_fold)
+metrics = model.extract_mIoU(args.pred_folder, args.gt_mask_fold)
 
 print(metrics)
 
