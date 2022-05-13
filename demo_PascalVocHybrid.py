@@ -19,22 +19,23 @@ args = SimpleNamespace(train_mode = True,
                        lr=5e-3,
                        weight_decay=1e-4, 
                        VocClassList="path_to_PascalVocClasses.txt", ## can be found in other folder
-                       voc12_img_folder="path_to_JPEGImages/", ## download from http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
-                       gt_mask_fold = "C:/Users/johny/Desktop/Transformer-Explainability-main/ours/VOCdevkit/VOC2012/SegmentationClass/",
+                       voc12_img_folder="path_to_JPEGImages", ## download from http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar
+                       gt_mask_fold = "path_to_VOC2012_SegmentationClass",
 
                        train_set="path_to_train_augm.txt",  ## can be found in other folder
-                       val_set=r"path_to_val.txt",  ## can be found in other folder
+                       val_set="path_to_val.txt",  ## can be found in other folder
                        labels_dict="path_to_cls_labels.npy", ## can be found in other folder
                        device=torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"),
                        
                        
-                       session_name = "PascalVOC_classification_Hybrid_2"
                        alpha_low = 4,
                        alpha_high = 32,
-                       alpha_low_folder = "ViT_hybrid_crf_lows"
-                       alpha_high_folder = "ViT_hybrid_crf_highs"
-                       cam_folder = "ViT_hybrid_cams"
-                       pred_folder = "ViT_hybrid_preds"                       
+                       alpha_low_folder = "store_to_ViT_hybrid_crf_lows" ## set store folders
+                       alpha_high_folder = "store_to_ViT_hybrid_crf_highs"
+                       cam_folder = "store_to_ViT_hybrid_cams"
+                       pred_folder = "store_to_ViT_hybrid_preds"      
+                       
+                       session_name = "set_session_name"
                        )
 
 
@@ -59,19 +60,14 @@ val_loader = PascalVOC2012(args.val_set, args.labels_dict, args.voc12_img_folder
 val_loader = DataLoader(val_loader, batch_size=args.batch_size, shuffle=False)
 
 ## Initialize model
-model = ViT_hybrid_model(img_size=(448, 448), patch_size=16, n_heads=12, n_blocks=12,  embed_size=768, n_classes=20,
-                         max_epochs=args.epochs, device=args.device) ## TODO inster the number of class imagenet:1000 , PascalVOC: 18
+model = ViT_hybrid_model(session_name=args.session_name, img_size=(448, 448), patch_size=16, n_heads=12, n_blocks=12,  embed_size=768, n_classes=20,
+                         max_epochs=args.epochs, device=args.device)
 
 
 model.load_pretrained(args.pretrained_weights)
-model.session_name = ars.session_name 
 model.eval()
 
 if args.train_mode:
-
-  if not os.path.exists(model.session_name):
-      os.makedirs(model.session_name)
-
 
   # Prepare optimizer and scheduler
   optimizer = torch.optim.SGD(model.parameters(),
@@ -101,14 +97,14 @@ if args.train_mode:
       
 
 model.extract_LRP_for_affinity(train_loader, alpha_low=args.alpha_low, alpha_high=args.alpha_high,
-                                 alpha_low_folder = os.path.join(alpha_low_folder,train), alpha_high_folder = args.path.join(alpha_high_folder,train),
-                                 cam_folder = os.path.join(cam_folder,train), pred_folder = os.path.join(pred_folder,train))
+                                 alpha_low_folder=os.path.join("train", args.alpha_low_folder), alpha_high_folder=os.path.join("train", args.alpha_high_folder),
+                                 cam_folder=os.path.join("train", args.cam_folder), pred_folder=os.path.join("train", args.pred_folder))
 
 model.extract_LRP_for_affinity(val_loader, alpha_low=args.alpha_low, alpha_high=args.alpha_high,
-                                 alpha_low_folder = os.path.join(alpha_low_folder,val), alpha_high_folder =  args.path.join(alpha_high_folder,val),
-                                 cam_folder =  os.path.join(cam_folder,val), pred_folder =  os.path.join(pred_folder,val))
+                                 alpha_low_folder=os.path.join("val", args.alpha_low_folder), alpha_high_folder=os.path.join("val", args.alpha_high_folder),
+                                 cam_folder=os.path.join("val", args.cam_folder), pred_folder=os.path.join("val", args.pred_folder))
 
 
-metrics = model.extract_mIoU(os.path.join(pred_folder,val), args.gt_mask_fold)
+metrics = model.extract_mIoU(os.path.join("val", pred_folder), args.gt_mask_fold)
 
 print(metrics)
