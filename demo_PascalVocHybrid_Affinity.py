@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from utils import *
 from network import ViT_hybrid_model_Affinity
 import pickle
+import os 
 
 ### Setting arguments
 args = SimpleNamespace(train_mode=True,
