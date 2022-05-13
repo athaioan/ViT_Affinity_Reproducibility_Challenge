@@ -11,8 +11,8 @@ import pickle
 ### Setting arguments
 args = SimpleNamespace(batch_size=1,
                        input_dim=448,
-                       # pretrained_weights="path_to_Hybrid_ViT_imagenet.pth", ##  from stored_weights we provided you with
-                       pretrained_weights="stored_weights/Hybrid_ViT_pascal.pth",  ## from stored_weights we provided you with
+                       pretrained_weights="path_to_Hybrid_ViT_imagenet.pth", ##  from stored_weights we provided you with
+                       # pretrained_weights="stored_weights/Hybrid_ViT_pascal.pth",  ## from stored_weights we provided you with
                        epochs=20,
                        lr=5e-3,
                        weight_decay=1e-4, 
