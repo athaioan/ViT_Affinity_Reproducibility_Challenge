@@ -250,7 +250,7 @@ class ViT_model(nn.Module):
         plt.plot(np.arange(len(self.val_history["loss"])), self.val_history["loss"], label="val")
 
         plt.legend()
-        plt.savefig(self.session_name + "/loss.png")
+        plt.savefig(os.path.join(session_name,"/loss.png"))
         plt.close()
         return
 
