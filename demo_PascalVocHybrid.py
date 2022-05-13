@@ -7,12 +7,14 @@ from types import SimpleNamespace
 from utils import *
 from network import ViT_hybrid_model
 import pickle
+import os
 
 ### Setting arguments
-args = SimpleNamespace(batch_size=1,
+args = SimpleNamespace(train_mode = True
+                       batch_size=1,
                        input_dim=448,
-                       pretrained_weights="path_to_Hybrid_ViT_imagenet.pth", ##  from stored_weights we provided you with
-                       # pretrained_weights="stored_weights/Hybrid_ViT_pascal.pth",  ## from stored_weights we provided you with
+                       pretrained_weights="path_to_Hybrid_ViT_imagenet.pth", ## initialization -  from stored_weights we provided you with
+                       # pretrained_weights="stored_weights/Hybrid_ViT_pascal.pth",  ## final - from stored_weights we provided you with
                        epochs=20,
                        lr=5e-3,
                        weight_decay=1e-4, 
@@ -24,7 +26,16 @@ args = SimpleNamespace(batch_size=1,
                        val_set=r"path_to_val.txt",  ## can be found in other folder
                        labels_dict="path_to_cls_labels.npy", ## can be found in other folder
                        device=torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"),
-                                             )
+                       
+                       
+                       session_name = "PascalVOC_classification_Hybrid_2"
+                       alpha_low = 4,
+                       alpha_high = 32,
+                       alpha_low_folder = "ViT_hybrid_crf_lows"
+                       alpha_high_folder = "ViT_hybrid_crf_highs"
+                       cam_folder = "ViT_hybrid_cams"
+                       pred_folder = "ViT_hybrid_preds"                       
+                       )
 
 
 normalize = transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])
@@ -53,52 +64,51 @@ model = ViT_hybrid_model(img_size=(448, 448), patch_size=16, n_heads=12, n_block
 
 
 model.load_pretrained(args.pretrained_weights)
-model.session_name = "PascalVOC_classification_Hybrid_2"
+model.session_name = ars.session_name 
 model.eval()
 
-if not os.path.exists(model.session_name):
-    os.makedirs(model.session_name)
+if args.train_mode:
+
+  if not os.path.exists(model.session_name):
+      os.makedirs(model.session_name)
 
 
-# Prepare optimizer and scheduler
-optimizer = torch.optim.SGD(model.parameters(),
-                            lr=args.lr,
-                            momentum=0.9,
-                            weight_decay=args.weight_decay)
+  # Prepare optimizer and scheduler
+  optimizer = torch.optim.SGD(model.parameters(),
+                              lr=args.lr,
+                              momentum=0.9,
+                              weight_decay=args.weight_decay)
 
-# Training ViT_Hybrid on Pascal Voc
-for index in range(model.max_epochs):
+  # Training ViT_Hybrid on Pascal Voc
+  for index in range(model.max_epochs):
 
-    for g in optimizer.param_groups:
-        g['lr'] = args.lr * (1-index/model.max_epochs)
+      for g in optimizer.param_groups:
+          g['lr'] = args.lr * (1-index/model.max_epochs)
 
-    print("Training epoch...")
-    model.train_epoch(train_loader, optimizer)
+      print("Training epoch...")
+      model.train_epoch(train_loader, optimizer)
 
-    print("Validating epoch...")
-    model.val_epoch(val_loader)
+      print("Validating epoch...")
+      model.val_epoch(val_loader)
 
-    model.visualize_graph()
+      model.visualize_graph()
 
-    if model.val_history["loss"][-1] < model.min_val:
-        print("Saving model...")
-        model.min_val = model.val_history["loss"][-1]
+      if model.val_history["loss"][-1] < model.min_val:
+          print("Saving model...")
+          model.min_val = model.val_history["loss"][-1]
 
-        torch.save(model.state_dict(), model.session_name+"/stage_1.pth")
+          torch.save(model.state_dict(), model.session_name+"/stage_1.pth")
+      
 
+model.extract_LRP_for_affinity(train_loader, alpha_low=args.alpha_low, alpha_high=args.alpha_high,
+                                 alpha_low_folder = os.path.join(alpha_low_folder,train), alpha_high_folder = args.path.join(alpha_high_folder,train),
+                                 cam_folder = os.path.join(cam_folder,train), pred_folder = os.path.join(pred_folder,train))
 
-model.extract_LRP_for_affinity(train_loader, alpha_low=4, alpha_high=32,
-                                 alpha_low_folder = "ViT_hybrid_train_crf_lows/", alpha_high_folder = "ViT_hybrid_train_crf_highs/",
-                                 cam_folder = "ViT_hybrid_train_cams/", pred_folder = "ViT_hybrid_train_preds/")
-
-model.extract_LRP_for_affinity(val_loader, alpha_low=4, alpha_high=32,
-                                 alpha_low_folder = "ViT_hybrid_val_crf_lows/", alpha_high_folder = "ViT_hybrid_val_crf_highs/",
-                                 cam_folder = "ViT_hybrid_val_cams/", pred_folder = "ViT_hybrid_val_preds/")
-
-
-cam_pred_fold = "C:/Users/johny/Desktop/Transformer-Explainability-main/ours/ViT_hybrid_val_preds/" ## path to ViT_hybrid_val_preds
+model.extract_LRP_for_affinity(val_loader, alpha_low=args.alpha_low, alpha_high=args.alpha_high,
+                                 alpha_low_folder = os.path.join(alpha_low_folder,val), alpha_high_folder =  args.path.join(alpha_high_folder,val),
+                                 cam_folder =  os.path.join(cam_folder,val), pred_folder =  os.path.join(pred_folder,val))
 
 
-metrics = model.extract_mIoU(cam_pred_fold, args.gt_mask_fold)
+metrics = model.extract_mIoU(os.path.join(pred_folder,val), args.gt_mask_fold)
 
 print(metrics)
