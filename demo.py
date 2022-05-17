@@ -63,10 +63,10 @@ print(pixAcc, mIoU, mAp)
 
 
 # Table 3.
-positive = True for positive perturbation
-positive = False for negative perturbation
-vis_class_top = True for positive predicted
-vis_class_top = False for negative target
+# positive = True for positive perturbation
+# positive = False for negative perturbation
+# vis_class_top = True for positive predicted
+# vis_class_top = False for negative target
 
 AUC = model.extract_AUC(val_loader, normalize, positive=True, vis_class_top=True)
 print(AUC)
