@@ -42,3 +42,14 @@ To reproduce the results of Table 4 referring to the ViT-Hybrid run demo_PascalV
 
 To reproduce the results of Table 4 referring to the Affinity ViT-Hybrid run demo_PascalVocHybrid_Affinity.py 
 
+## Citation
+To cite our work please use:
+```@inproceedings{
+athanasiadis2022weaklysupervised,
+title={Weakly-Supervised Semantic Segmentation via Transformer Explainability},
+author={Ioannis Athanasiadis and Georgios Moschovis and Alexander Tuoma},
+booktitle={ML Reproducibility Challenge 2021 (Fall Edition)},
+year={2022},
+url={https://openreview.net/forum?id=rcEDhGX3AY}
+}```
+
