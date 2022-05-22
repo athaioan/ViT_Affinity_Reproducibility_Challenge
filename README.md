@@ -51,5 +51,6 @@ author={Ioannis Athanasiadis and Georgios Moschovis and Alexander Tuoma},
 booktitle={ML Reproducibility Challenge 2021 (Fall Edition)},
 year={2022},
 url={https://openreview.net/forum?id=rcEDhGX3AY}
-}```
+}
+```
 
