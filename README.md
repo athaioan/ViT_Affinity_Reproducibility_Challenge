@@ -1,7 +1,7 @@
 # [RE] Weakly-Supervised Semantic Segmentation via Transformer Explainability (Reproduction of Transformer Interpretability Beyond Attention Visualization [CVPR 2021])
 
 ## Openreview
-You can find the report at http://dx.doi.org/10.5281/zenodo.6574631
+You can find the paper reviews through Openreview at https://openreview.net/forum?id=rcEDhGX3AY and the camera-ready report at http://dx.doi.org/10.5281/zenodo.6574631
 
 ## Requirements
 You can download the pretrained weights we used and those we trained at https://drive.google.com/drive/folders/1lCjPjO3_BUnk-utY9-taCTQKoq2Pm43s
