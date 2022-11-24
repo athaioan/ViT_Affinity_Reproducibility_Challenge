@@ -741,7 +741,6 @@ class Block(nn.Module):
         self.clone1 = Clone()
         self.clone2 = Clone()
 
-    ###### GM NEW ###### todo --> remove comment after explaining
     def relevance_propagation(self, relevance):
         (relevance, relevance_dupl) = self.add2.relevance_propagation(relevance)
         relevance_dupl = self.mlp.relevance_propagation(relevance_dupl)
